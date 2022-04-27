@@ -1,0 +1,28 @@
+[ROUTERCISCO]
+R1 ansible_host=192.168.44.132
+R2 ansible_host=192.168.44.131
+
+[ROUTERMKT]
+Mkt1 ansible_host=192.168.44.151
+
+[SWITCHCISCO]
+SW1 ansible_host=192.168.44.150
+
+[ROUTERCISCO:vars]
+ansible_network_os=ios
+ansible_user=dltec
+ansible_password=dltec
+ansible_connection=network_cli
+
+
+[ROUTERMKT:vars]
+ansible_network_os=routeros
+ansible_user=dltec
+ansible_password=dltec
+ansible_connection=network_cli
+
+[SWITCHCISCO:vars]
+ansible_network_os=ios
+ansible_user=dltec
+ansible_password=dltec
+ansible_connection=network_cli
