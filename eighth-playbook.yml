@@ -1,0 +1,78 @@
+---
+
+- hosts: ROUTERCISCO:SWITCHCISCO
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: Configurar DNS e NTP
+      ios_config:
+        lines:
+          - ip name-server 8.8.8.4
+          - clock timezone BRA -3 0
+          - ntp server a.st1.ntp.br
+          - service password-encryption
+
+- hosts: ROUTERCISCO
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: ativar OSPF
+      ios_config:
+        parents: "{{ item }}"
+        lines:
+          - ip ospf 1 area 10
+      with_items:
+        - "interface ethernet 0/0"
+        - "interface ethernet 0/1"
+        - "interface ethernet 0/2"
+        - "interface ethernet 0/3"
+
+
+- hosts: SWITCHCISCO
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: L2 Interface
+      cisco.ios.ios_l2_interfaces:
+        config:
+        - name: Ethernet0/2
+          mode: trunk
+          trunk:
+            encapsulation: dot1q
+            native_vlan: 1
+            allowed_vlans: 20-25
+        state: merged
+
+    - name: VLAN 10
+      cisco.ios.ios_vlans:
+        config:
+        - name: vlan_10_data
+          vlan_id: 10
+          state: active
+          shutdown: disabled
+        state: merged
+
+    - name: STP e Save Config
+      ios_config:
+        lines:
+          - spanning-tree mode rapid-pvst
+          - spanning-tree portfast edge default
+          - do wr
+
+- hosts: ROUTERMKT
+  
+  tasks:
+    - name: Mostrar estatisticas
+      community.routeros.command:
+        commands: 
+           - /system clock set time-zone-autodetect=no
+           - /system clock set time-zone-name=America/Sao_Paulo
+           - /system ntp client set enabled=yes primary-ntp=200.160.0.8
+           - /ip dns set servers=8.8.8.4
+           - /ip dns print
+           - /system resource print
+      register: output
+    - debug: var=output.stdout_lines

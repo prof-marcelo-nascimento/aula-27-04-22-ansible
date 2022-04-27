@@ -1,0 +1,21 @@
+- hosts: ROUTERCISCO
+  
+  tasks:
+    - name: Mostrar interfaces
+      ios_command:
+        commands: 
+           - show ip interface brief
+           - show version | include uptime
+      register: output1
+    - debug: var=output1.stdout_lines
+
+- hosts: ROUTERMKT
+  
+  tasks:
+    - name: Mostrar estatisticas
+      community.routeros.command:
+        commands: 
+           - /ip dns print
+           - /system resource print
+      register: output2
+    - debug: var=output2.stdout_lines

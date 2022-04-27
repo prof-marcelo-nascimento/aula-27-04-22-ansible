@@ -1,0 +1,13 @@
+---
+
+- hosts: ROUTERCISCO:SWITCHCISCO
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: Configurar DNS e NTP
+      ios_config:
+        lines:
+          - ip name-server 8.8.8.4
+          - clock timezone BRA -3 0
+          - ntp server a.st1.ntp.br
