@@ -1,0 +1,11 @@
+---
+
+- hosts: SWITCHCISCO
+
+  tasks:
+    - name: Mostrar interfaces
+      ios_command:
+        commands:
+           - show mac address-table | include 5000.0004.0003
+      register: output1
+    - debug: var=output1.stdout_lines
